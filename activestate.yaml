@@ -10,6 +10,10 @@ scripts:
     language: perl
     value: |
       print <<EOT;
+      HI PETE! run 
+      
+      state run cheat
+      
       You are now in an 'activated state', this will give you a virtual environment to work in that doesn't affect the rest of your system.
 
       Your 'activated state' allows you to manage packages, scripts, secrets and more via the activestate.yaml file at the root of your project directory.
@@ -19,6 +23,13 @@ scripts:
       To access additional features of the ActiveState Platform and use a web-based interface for managing your project, you can visit https://platform.activestate.com/ActiveState/Perl532-BundlesRC.
 
       Edit your activestate.yaml to remove this message.
+      EOT
+- name: cheat
+    language: perl
+    value: |
+      print <<EOT;
+      Do this amazing thing
+      Then than
       EOT
 events:
   # This is the ACTIVATE event, it will run whenever a new virtual environment is created (eg. by running `state activate`)
