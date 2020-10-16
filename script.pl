@@ -36,7 +36,7 @@ print <<EOT;
       Edit your activestate.yaml to remove this message.
 
       To get started, run `state run learn` to view a quick start guide of commonly used commands.
-      EOT
+EOT
 
 1;
 
