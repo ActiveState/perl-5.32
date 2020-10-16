@@ -31,8 +31,18 @@ scripts:
       Do this amazing thing
       Then than
       EOT
+  - name: script
+    description: Runs the perl script to set up file extension associations and start menu shortcut pointing to the perl executable
+    language: batch
+    value: |
+      @echo off
+      REM Get path to perl executable
+      FOR /F "tokens=* USEBACKQ" %%F IN (`where perl.exe`) DO (
+        SET perlPath=%%F
+      )
+      perl script.pl %perlPath%
 events:
   # This is the ACTIVATE event, it will run whenever a new virtual environment is created (eg. by running `state activate`)
   # On Linux and macOS this will be ran as part of your shell's rc file, so you can use it to set up aliases, functions, environment variables, etc.
-  - name: ACTIVATE
+  - name: FIRST-ACTIVATE
     value: $scripts.activationMessage.path()
