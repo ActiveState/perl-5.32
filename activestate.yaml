@@ -1,24 +1,6 @@
 project: https://platform.activestate.com/ActiveState/repoUrlTest?commitID=f00c5ad7-1b32-46c7-93b1-00863d47d58f
 
 scripts:
-  - name: activationMessage
-    language: perl
-    value: |
-      print <<EOT;
-      HI PETE! run 
-      
-      state run cheat
-      
-      You are now in an 'activated state', this will give you a virtual environment to work in that doesn't affect the rest of your system.
-
-      Your 'activated state' allows you to manage packages, scripts, secrets and more via the activestate.yaml file at the root of your project directory.
-
-      To manage packages use the `state packages` command. For more information about package management, use `state packages --help`. For more information about the State Tool use `state help`.
-
-      To access additional features of the ActiveState Platform and use a web-based interface for managing your project, you can visit https://platform.activestate.com/ActiveState/Perl532-BundlesRC.
-
-      Edit your activestate.yaml to remove this message.
-      EOT
   - name: script
     description: Runs the perl script to set up file extension associations and start menu shortcut pointing to the perl executable
     language: batch
@@ -40,4 +22,3 @@ events:
   - name: FIRST-ACTIVATE
     value: |
       $scripts.script.path()
-      perl $scripts.activationMessage.path()
