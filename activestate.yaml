@@ -34,13 +34,10 @@ scripts:
         SET perlPath=%%F
       )
       perl script.pl %perlPath%
-  - name: cheat
-    language: perl
+  - name: learn
+    language: batch
     value: |
-        print <<EOT;
-        Do this amazing thing
-        Then than
-        EOT
+      start http://www.activestate.com
 
 events:
   # This is the ACTIVATE event, it will run whenever a new virtual environment is created (eg. by running `state activate`)
