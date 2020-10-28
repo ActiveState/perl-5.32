@@ -1,10 +1,11 @@
-project: https://pr4297.activestate.build/ActiveState/repoUrlTest?commitID=7aee99d4-2655-4507-9c48-bc1d6cdac532
+project: https://pr4297.activestate.build/ActiveState/repoUrlTest?commitID=6550aeb1-cdc5-45b9-9afb-ee48b2fc61b1
 
 scripts:
   - name: learn
-    language: batch
+    language: perl
     value: |
-      start http://www.activestate.com
+      use Browser::Open qw( open_browser );
+      open_browser('http://www.activestate.com');
   - name: setup
     description: Runs the perl script to set up file extension associations and start menu shortcut pointing to the perl executable
     language: perl
