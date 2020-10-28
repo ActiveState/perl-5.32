@@ -1,24 +1,39 @@
-project: https://platform.activestate.com/ActiveState/repoUrlTest?commitID=f00c5ad7-1b32-46c7-93b1-00863d47d58f
+project: https://pr4297.activestate.build/ActiveState/repoUrlTest?commitID=7aee99d4-2655-4507-9c48-bc1d6cdac532
 
 scripts:
-  - name: script
-    description: Runs the perl script to set up file extension associations and start menu shortcut pointing to the perl executable
-    language: batch
-    value: |
-      @echo off
-      REM Get path to perl executable
-      FOR /F "tokens=* USEBACKQ" %%F IN (`where perl.exe`) DO (
-        SET perlPath=%%F
-      )
-      perl script.pl %perlPath%
   - name: learn
     language: batch
     value: |
       start http://www.activestate.com
-
-events:
-  # This is the ACTIVATE event, it will run whenever a new virtual environment is created (eg. by running `state activate`)
-  # On Linux and macOS this will be ran as part of your shell's rc file, so you can use it to set up aliases, functions, environment variables, etc.
-  - name: FIRST-ACTIVATE
+  - name: setup
+    description: Runs the perl script to set up file extension associations and start menu shortcut pointing to the perl executable
+    language: perl
+    if: eq .OS.Name "Windows"
     value: |
-      $scripts.script.path()
+      use lib q(.);
+      use Setup qw(create_shortcut create_file_assoc);
+      create_shortcut();
+      create_file_assoc();
+      print "Perl Shortcuts and File Associations created.\n\n"
+  - name: introduction
+    description: Short introduction to state tool usage and ActiveState platform basics
+    language: perl
+    value: |
+      print <<EOT;
+      You are now in an 'activated state', this will give you a virtual environment to work in that doesn't affect the rest of your system.
+
+      Your 'activated state' allows you to manage packages, scripts, secrets and more via the activestate.yaml file at the root of your project directory.
+
+      To manage packages use the `state packages` command. For more information about package management, use `state packages --help`. For more information about the State Tool use `state help`.
+
+      To access additional features of the ActiveState Platform and use a web-based interface for managing your project, you can visit https://platform.activestate.com/ActiveState/Perl532-BundlesRC.
+
+      Edit your activestate.yaml to remove this message.
+
+      To get started, run `state run learn` to view a quick start guide of commonly used commands.
+      EOT
+events:
+  - name: first-activate
+    value: perl $scripts.setup.path()
+  - name: activate
+    value: perl $scripts.introduction.path()
