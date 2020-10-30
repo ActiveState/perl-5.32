@@ -1,4 +1,4 @@
-project: https://pr4297.activestate.build/ActiveState/repoUrlTest?commitID=6550aeb1-cdc5-45b9-9afb-ee48b2fc61b1
+project: https://pr4297.activestate.build/ActiveState/repoUrlTest?commitID=9dfda968-a375-42dc-a2d9-ca405e33e76a
 
 scripts:
   - name: learn
@@ -20,18 +20,23 @@ scripts:
     description: Short introduction to state tool usage and ActiveState platform basics
     language: perl
     value: |
+      use if $^O eq "MSWin32", Win32::Console::ANSI;
+      my $H = "\e[1;39;1m"; # Highlight
+      my $A = "\e[1;36m"; # Actionable
+      my $R = "\e[0m"; # Reset
       print <<EOT;
-      You are now in an 'activated state', this will give you a virtual environment to work in that doesn't affect the rest of your system.
 
-      Your 'activated state' allows you to manage packages, scripts, secrets and more via the activestate.yaml file at the root of your project directory.
+      You are now in an ${H}activated state${R}, this will give you a virtual environment to work in that doesn't affect the rest of your system.
 
-      To manage packages use the `state packages` command. For more information about package management, use `state packages --help`. For more information about the State Tool use `state help`.
+      Your ${H}activated state${R} allows you to manage packages, scripts, secrets and more via the ${H}activestate.yaml${R} file at the root of your project directory.
 
-      To access additional features of the ActiveState Platform and use a web-based interface for managing your project, you can visit https://platform.activestate.com/ActiveState/Perl532-BundlesRC.
+      To manage packages use the `${A}state packages${R}` command. For more information about package management, use `${A}state packages --help${R}`. For more information about the State Tool use `${A}state help${R}`.
 
-      Edit your activestate.yaml to remove this message.
+      To access additional features of the ActiveState Platform and use a web-based interface for managing your project, you can visit ${A}https://platform.activestate.com/ActiveState/Perl532-BundlesRC${R}.
 
-      To get started, run `state run learn` to view a quick start guide of commonly used commands.
+      Edit your ${H}activestate.yaml${R} to remove this message.
+
+      To get started, run `${A}state run learn${R}` to view a quick start guide of commonly used commands.
       EOT
 events:
   - name: first-activate
