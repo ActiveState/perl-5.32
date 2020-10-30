@@ -5,7 +5,7 @@ scripts:
     language: perl
     value: |
       use Browser::Open qw( open_browser );
-      open_browser('http://www.activestate.com');
+      open_browser('https://platform.activestate.com/state-tool-cheat-sheet');
   - name: setup
     description: Runs the perl script to set up file extension associations and start menu shortcut pointing to the perl executable
     language: perl
