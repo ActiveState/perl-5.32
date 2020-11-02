@@ -49,7 +49,7 @@ sub create_shortcut {
         unlink $lnkPath;
     }
 
-    print "Creating shortcut: $lnkPath -> $target\n";
+    #print "Creating shortcut: $lnkPath -> $target\n";
     my $LINK = Win32::Shortcut->new();
     $LINK->{'Path'} = $target;
 
@@ -82,7 +82,7 @@ sub create_file_assoc {
     };
 
     foreach (@$assocsRef) {
-        print "Creating file association: $_: $prog_id\n";
+        #print "Creating file association: $_: $prog_id\n";
         $Registry->{"CUser\\Software\\Classes\\$_\\"} = {"" => $prog_id};
     }
 

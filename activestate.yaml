@@ -15,7 +15,7 @@ scripts:
       use Setup qw(create_shortcut create_file_assoc);
       create_shortcut();
       create_file_assoc();
-      print "Perl Shortcuts and File Associations created.\n\n"
+      print "Successfully created Desktop Shortcuts and File Associations.\n\n"
   - name: introduction
     description: Short introduction to state tool usage and ActiveState platform basics
     language: perl
@@ -26,17 +26,11 @@ scripts:
       my $R = "\e[0m"; # Reset
       print <<EOT;
 
-      You are now in an ${H}activated state${R}, this will give you a virtual environment to work in that doesn't affect the rest of your system.
+      You are now in an ${H}activated state${R}: a virtual environment just for this project.
 
-      Your ${H}activated state${R} allows you to manage packages, scripts, secrets and more via the ${H}activestate.yaml${R} file at the root of your project directory.
+      To access more features of the ActiveState Platform you can visit ${A}https://platform.activestate.com/ActiveState/Perl-5.32${R}.
 
-      To manage packages use the `${A}state packages${R}` command. For more information about package management, use `${A}state packages --help${R}`. For more information about the State Tool use `${A}state help${R}`.
-
-      To access additional features of the ActiveState Platform and use a web-based interface for managing your project, you can visit ${A}https://platform.activestate.com/ActiveState/Perl532-BundlesRC${R}.
-
-      Edit your ${H}activestate.yaml${R} to remove this message.
-
-      To get started, run `${A}state run learn${R}` to view a quick start guide of commonly used commands.
+      Type `${A}state run learn${R}` to view a quick start guide of commonly used commands.
       EOT
 events:
   - name: first-activate
