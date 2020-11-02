@@ -28,7 +28,7 @@ scripts:
 
       You are now in an ${H}activated state${R}: a virtual environment just for this project.
 
-      To access more features of the ActiveState Platform you can visit ${A}https://platform.activestate.com/ActiveState/Perl-5.32${R}.
+      To access more of the ActiveState Platform you can visit ${A}https://platform.activestate.com/ActiveState/Perl-5.32${R}.
 
       Type `${A}state run learn${R}` to view a quick start guide of commonly used commands.
       EOT
