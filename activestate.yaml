@@ -1,4 +1,4 @@
-project: https://pr4297.activestate.build/ActiveState/repoUrlTest?commitID=9dfda968-a375-42dc-a2d9-ca405e33e76a
+project: https://platform.activestate.com/ActiveState/Perl-5.32?commitID=abc1a9fb-d754-40ec-aca2-4e6d71278dc3
 
 scripts:
   - name: learn
