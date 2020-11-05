@@ -34,6 +34,7 @@ scripts:
       EOT
 events:
   - name: first-activate
+    if: eq .OS.Name "Windows"
     value: perl $scripts.setup.path()
   - name: activate
     value: perl $scripts.introduction.path()
