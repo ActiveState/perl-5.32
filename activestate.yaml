@@ -12,8 +12,9 @@ scripts:
     if: eq .OS.Name "Windows"
     value: |
       use lib q(.);
-      use Setup qw(create_shortcut create_file_assoc);
-      create_shortcut();
+      use Setup qw(create_internet_shortcuts create_shortcuts create_file_assoc);
+      create_internet_shortcuts(); # TODO: inject namespace
+      create_shortcuts();
       create_file_assoc();
       print "Successfully created Desktop Shortcuts and File Associations.\n\n"
   - name: introduction

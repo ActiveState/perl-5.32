@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_shortcut create_file_assoc);
+our @EXPORT_OK = qw(create_internet_shortcuts create_shortcuts create_file_assoc);
 
 use lib q(.);
 use File::Path qw( mkpath );
@@ -19,7 +19,7 @@ use Win32::API;
 use Win32::Shortcut;
 use Win32::TieRegistry;
 
-our $VERSION           = '0.01';
+our $VERSION           = '0.02';
 my $SHCNE_ASSOCCHANGED = 0x8_000_000;
 my $SCNF_FLUSH         = 0x1000;
 
@@ -35,21 +35,46 @@ sub update_win32_shell() {
     return;
 }
 
-sub create_shortcut {
-    my $start_menu_path = Win32::GetFolderPath(Win32::CSIDL_STARTMENU());
-    my $start_menu_base = catfile($start_menu_path, 'ActiveState');
+sub desktop_dir_path() {
+    return Win32::GetFolderPath(Win32::CSIDL_DESKTOPDIRECTORY());
+}
 
-    my $target  = $Config{perlpath};
-    my $icon    = q();
-    my $lnkPath = catfile($start_menu_base, 'Perl.lnk');
+sub start_menu_path() {
+    return Win32::GetFolderPath(Win32::CSIDL_STARTMENU());
+}
 
-    mkpath($start_menu_base);
+sub create_internet_shortcut() {
+    BEGIN { Win32::Unicode::InternetShortcut->CoInitialize(); }
+    END { Win32::Unicode::InternetShortcut->CoUninitialize(); }
+
+    my $target   = shift;
+    my $icon     = shift;
+    my $linkPath = shift;
 
     if ( -e $lnkPath ) {
         unlink $lnkPath;
     }
 
-    #print "Creating shortcut: $lnkPath -> $target\n";
+    #print "Creating internet shortcut: $lnkPath -> $target\n";
+    my $link = Win32::Unicode::InternetShortcut->new;
+    $link->save($lnkPath, $target);
+    $link->load($lnkPath);
+
+    ($link->{target} eq $target) || die "Not the same url\n";
+
+    return;
+}
+
+sub create_shortcut() {
+    my $target   = shift;
+    my $icon     = shift;
+    my $linkPath = shift;
+
+    if ( -e $lnkPath ) {
+        unlink $lnkPath;
+    }
+
+    #print "Creating application shortcut: $lnkPath -> $target\n";
     my $LINK = Win32::Shortcut->new();
     $LINK->{'Path'} = $target;
 
@@ -58,6 +83,42 @@ sub create_shortcut {
     $LINK->{'IconNumber'}   = 0;
     $LINK->Save($lnkPath);
     $LINK->Close();
+
+    return;
+}
+
+sub create_internet_shortcuts {
+    my $namespace  = shift;
+
+    my $target  = "https://platform.activestate.com/$namespace"
+    my $icon    = q();
+    my $lnkName = 'PROJECT.url'; # TODO: ensure this is correct
+
+    my $start_menu_base = catfile(start_menu_path(), 'ActiveState');
+    mkpath($start_menu_base);
+
+    my $startLnkPath = catfile($start_menu_base, $lnkName);
+    create_internet_shortcut($target, $icon, $startLnkPath);
+
+    my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
+    create_internet_shortcut($target, $icon, $dsktpLnkPath);
+
+    return;
+}
+
+sub create_shortcuts {
+    my $target  = $Config{perlpath}; # TODO: ensure this is correct
+    my $icon    = q();
+    my $lnkName = 'Perl.lnk';
+
+    my $start_menu_base = catfile(start_menu_path(), 'ActiveState');
+    mkpath($start_menu_base);
+
+    my $startLnkPath = catfile($start_menu_base, $lnkName);
+    create_shortcut($target, $icon, $startLnkPath);
+
+    my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
+    create_shortcut($target, $icon, $dsktpLnkPath);
 
     return;
 }
