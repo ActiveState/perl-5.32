@@ -19,9 +19,17 @@ use Win32::API;
 use Win32::Shortcut;
 use Win32::TieRegistry;
 
+BEGIN { Win32::Unicode::InternetShortcut->CoInitialize(); }
+END { Win32::Unicode::InternetShortcut->CoUninitialize(); }
+
 our $VERSION           = '0.02';
 my $SHCNE_ASSOCCHANGED = 0x8_000_000;
 my $SCNF_FLUSH         = 0x1000;
+
+my $ORGANIZATION = 'ActiveState';
+my $PROJECT      = 'perl-5.32';
+my $NAMESPACE    = "$ORGANIZATION/$PROJECT";
+my $PLATFORM_URL = "https://platform.activestate.com/$NAMESPACE";
 
 # Import Win32 function: `void SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2)`
 
@@ -44,9 +52,6 @@ sub start_menu_path() {
 }
 
 sub create_internet_shortcut() {
-    BEGIN { Win32::Unicode::InternetShortcut->CoInitialize(); }
-    END { Win32::Unicode::InternetShortcut->CoUninitialize(); }
-
     my $target   = shift;
     my $icon     = shift;
     my $linkPath = shift;
@@ -88,13 +93,11 @@ sub create_shortcut() {
 }
 
 sub create_internet_shortcuts {
-    my $namespace  = shift;
-
-    my $target  = "https://platform.activestate.com/$namespace"
+    my $target  = $PLATFORM_URL;
     my $icon    = q();
-    my $lnkName = 'PROJECT.url'; # TODO: ensure this is correct
+    my $lnkName = "$NAMESPACE Web.url";
 
-    my $start_menu_base = catfile(start_menu_path(), 'ActiveState');
+    my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
     mkpath($start_menu_base);
 
     my $startLnkPath = catfile($start_menu_base, $lnkName);
@@ -109,9 +112,9 @@ sub create_internet_shortcuts {
 sub create_shortcuts {
     my $target  = $Config{perlpath}; # TODO: ensure this is correct
     my $icon    = q();
-    my $lnkName = 'Perl.lnk';
+    my $lnkName = "$NAMESPACE CLI.lnk";
 
-    my $start_menu_base = catfile(start_menu_path(), 'ActiveState');
+    my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
     mkpath($start_menu_base);
 
     my $startLnkPath = catfile($start_menu_base, $lnkName);
@@ -128,7 +131,7 @@ sub create_file_assoc {
     my $assocsRef = ['.pl', '.perl'];
 
     my $cmd_name = basename($cmd);
-    my $prog_id  = "ActiveState.${cmd_name}";
+    my $prog_id  = "$ORGANIZATION.${cmd_name}";
 
     # file type description
     $Registry->{"CUser\\Software\\Classes\\${prog_id}\\"} = {
