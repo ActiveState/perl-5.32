@@ -110,7 +110,7 @@ sub create_internet_shortcuts {
 }
 
 sub create_shortcuts {
-    my $target  = $Config{perlpath}; # TODO: ensure this is correct
+    my $target  = "cmd /c state activate $NAMESPACE";
     my $icon    = q();
     my $lnkName = "$NAMESPACE CLI.lnk";
 
