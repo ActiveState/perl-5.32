@@ -38,20 +38,20 @@ if ( not defined $SHChangeNotify ) {
     die "Can't import SHChangeNotify: ${^E}\n";
 }
 
-sub update_win32_shell() {
+sub update_win32_shell {
     $SHChangeNotify->Call( $SHCNE_ASSOCCHANGED, $SCNF_FLUSH, 0, 0 );
     return;
 }
 
-sub desktop_dir_path() {
+sub desktop_dir_path {
     return Win32::GetFolderPath(Win32::CSIDL_DESKTOPDIRECTORY());
 }
 
-sub start_menu_path() {
+sub start_menu_path {
     return Win32::GetFolderPath(Win32::CSIDL_STARTMENU());
 }
 
-sub create_internet_shortcut() {
+sub create_internet_shortcut {
     my $target   = shift;
     my $icon     = shift;
     my $linkPath = shift;
@@ -70,7 +70,7 @@ sub create_internet_shortcut() {
     return;
 }
 
-sub create_shortcut() {
+sub create_shortcut {
     my $target   = shift;
     my $icon     = shift;
     my $linkPath = shift;
