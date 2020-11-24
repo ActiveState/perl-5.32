@@ -13,6 +13,7 @@ use File::Path qw( mkpath );
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
 use Config;
+use Cwd qw(cwd);
 
 use Win32;
 use Win32::API;
@@ -74,6 +75,7 @@ sub create_shortcut {
     my $target   = shift;
     my $icon     = shift;
     my $linkPath = shift;
+    my $location = shift;
 
     if ( -e $lnkPath ) {
         unlink $lnkPath;
@@ -82,10 +84,9 @@ sub create_shortcut {
     #print "Creating application shortcut: $lnkPath -> $target\n";
     my $LINK = Win32::Shortcut->new();
     $LINK->{'Path'} = $target;
-
-    # $LINK->{'WorkingDirectory'} = '';
-    $LINK->{'IconLocation'} = $icon;
-    $LINK->{'IconNumber'}   = 0;
+    $LINK->{'IconLocation'}     = $icon;
+    $LINK->{'IconNumber'}       = 0;
+    $LINK->{'WorkingDirectory'} = $location;
     $LINK->Save($lnkPath);
     $LINK->Close();
 
@@ -110,7 +111,7 @@ sub create_internet_shortcuts {
 }
 
 sub create_shortcuts {
-    my $target  = "cmd /c state activate $NAMESPACE";
+    my $target  = "cmd /c state activate";
     my $icon    = q();
     my $lnkName = "$NAMESPACE CLI.lnk";
 
@@ -118,10 +119,10 @@ sub create_shortcuts {
     mkpath($start_menu_base);
 
     my $startLnkPath = catfile($start_menu_base, $lnkName);
-    create_shortcut($target, $icon, $startLnkPath);
+    create_shortcut($target, $icon, $startLnkPath, cwd);
 
     my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
-    create_shortcut($target, $icon, $dsktpLnkPath);
+    create_shortcut($target, $icon, $dsktpLnkPath, cwd);
 
     return;
 }
