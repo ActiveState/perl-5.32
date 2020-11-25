@@ -99,7 +99,11 @@ sub create_internet_shortcuts {
     my $lnkName = "$NAMESPACE Web.url";
 
     my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
-    mkpath($start_menu_base);
+
+    unless (-d $start_menu_base) {
+        my $success = mkpath($start_menu_base);
+        die "Couldn't create start menu shortcut path '$start_menu_base': $!" unless $success == 1;
+    }
 
     my $startLnkPath = catfile($start_menu_base, $lnkName);
     create_internet_shortcut($target, $icon, $startLnkPath);
