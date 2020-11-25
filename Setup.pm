@@ -6,22 +6,32 @@ use strict;
 use warnings;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_shortcut create_file_assoc);
+our @EXPORT_OK = qw(create_internet_shortcuts create_shortcuts create_file_assoc);
 
 use lib q(.);
 use File::Path qw( mkpath );
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
 use Config;
+use Cwd qw(cwd);
 
 use Win32;
 use Win32::API;
 use Win32::Shortcut;
 use Win32::TieRegistry;
+use Win32::Unicode::InternetShortcut;
 
-our $VERSION           = '0.01';
+BEGIN { Win32::Unicode::InternetShortcut->CoInitialize(); }
+END { Win32::Unicode::InternetShortcut->CoUninitialize(); }
+
+our $VERSION           = '0.02';
 my $SHCNE_ASSOCCHANGED = 0x8_000_000;
 my $SCNF_FLUSH         = 0x1000;
+
+my $ORGANIZATION = 'ActiveState';
+my $PROJECT      = 'Perl-5.32';
+my $NAMESPACE    = "$ORGANIZATION/$PROJECT";
+my $PLATFORM_URL = "https://platform.activestate.com/$NAMESPACE";
 
 # Import Win32 function: `void SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2)`
 
@@ -30,34 +40,100 @@ if ( not defined $SHChangeNotify ) {
     die "Can't import SHChangeNotify: ${^E}\n";
 }
 
-sub update_win32_shell() {
+sub update_win32_shell {
     $SHChangeNotify->Call( $SHCNE_ASSOCCHANGED, $SCNF_FLUSH, 0, 0 );
     return;
 }
 
-sub create_shortcut {
-    my $start_menu_path = Win32::GetFolderPath(Win32::CSIDL_STARTMENU());
-    my $start_menu_base = catfile($start_menu_path, 'ActiveState');
+sub desktop_dir_path {
+    return Win32::GetFolderPath(Win32::CSIDL_DESKTOPDIRECTORY());
+}
 
-    my $target  = $Config{perlpath};
-    my $icon    = q();
-    my $lnkPath = catfile($start_menu_base, 'Perl.lnk');
+sub start_menu_path {
+    return Win32::GetFolderPath(Win32::CSIDL_STARTMENU());
+}
 
-    mkpath($start_menu_base);
+sub make_path {
+    my $base = shift;
+
+    unless (-d $base) {
+        my $success = mkpath($base);
+	die "Couldn't create path '$base': $!" unless $success == 1;
+    }
+}
+
+sub create_internet_shortcut {
+    my $target  = shift;
+    my $lnkPath = shift;
 
     if ( -e $lnkPath ) {
         unlink $lnkPath;
     }
 
-    #print "Creating shortcut: $lnkPath -> $target\n";
-    my $LINK = Win32::Shortcut->new();
-    $LINK->{'Path'} = $target;
+    #print "Creating internet shortcut: $lnkPath -> $target\n";
+    my $link = Win32::Unicode::InternetShortcut->new;
+    $link->save($lnkPath, $target);
+    $link->load($lnkPath);
 
-    # $LINK->{'WorkingDirectory'} = '';
-    $LINK->{'IconLocation'} = $icon;
-    $LINK->{'IconNumber'}   = 0;
+    ($link->{url} eq $target) || die "Not the same url\n";
+
+    return;
+}
+
+sub create_shortcut {
+    my $target   = shift;
+    my $args     = shift;
+    my $icon     = shift;
+    my $lnkPath  = shift;
+    my $location = shift;
+
+    if ( -e $lnkPath ) {
+        unlink $lnkPath;
+    }
+
+    #print "Creating application shortcut: $lnkPath -> $target\n";
+    my $LINK = Win32::Shortcut->new();
+    $LINK->{'Path'}             = $target;
+    $LINK->{'Arguments'}        = $args;
+    $LINK->{'IconLocation'}     = $icon;
+    $LINK->{'IconNumber'}       = 0;
+    $LINK->{'WorkingDirectory'} = $location;
     $LINK->Save($lnkPath);
     $LINK->Close();
+
+    return;
+}
+
+sub create_internet_shortcuts {
+    my $target  = $PLATFORM_URL;
+    my $lnkName = "$NAMESPACE Web.url";
+    $lnkName =~ s#/# #;
+
+    my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
+    make_path($start_menu_base);
+    my $startLnkPath = catfile($start_menu_base, $lnkName);
+    create_internet_shortcut($target, $startLnkPath);
+
+    my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
+    create_internet_shortcut($target, $dsktpLnkPath);
+
+    return;
+}
+
+sub create_shortcuts {
+    my $target  = "%windir%\\system32\\cmd.exe";
+    my $args     = "/k state activate";
+    my $icon    = q();
+    my $lnkName = "$NAMESPACE CLI.lnk";
+    $lnkName =~ s#/# #;
+
+    my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
+    make_path($start_menu_base);
+    my $startLnkPath = catfile($start_menu_base, $lnkName);
+    create_shortcut($target, $args, $icon, $startLnkPath, cwd);
+
+    my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
+    create_shortcut($target, $args, $icon, $dsktpLnkPath, cwd);
 
     return;
 }
@@ -67,7 +143,7 @@ sub create_file_assoc {
     my $assocsRef = ['.pl', '.perl'];
 
     my $cmd_name = basename($cmd);
-    my $prog_id  = "ActiveState.${cmd_name}";
+    my $prog_id  = "$ORGANIZATION.${cmd_name}";
 
     # file type description
     $Registry->{"CUser\\Software\\Classes\\${prog_id}\\"} = {
