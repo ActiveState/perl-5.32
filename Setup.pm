@@ -19,6 +19,7 @@ use Win32;
 use Win32::API;
 use Win32::Shortcut;
 use Win32::TieRegistry;
+use Win32::Unicode::InternetShortcut;
 
 BEGIN { Win32::Unicode::InternetShortcut->CoInitialize(); }
 END { Win32::Unicode::InternetShortcut->CoUninitialize(); }
@@ -28,7 +29,7 @@ my $SHCNE_ASSOCCHANGED = 0x8_000_000;
 my $SCNF_FLUSH         = 0x1000;
 
 my $ORGANIZATION = 'ActiveState';
-my $PROJECT      = 'perl-5.32';
+my $PROJECT      = 'Perl-5.32';
 my $NAMESPACE    = "$ORGANIZATION/$PROJECT";
 my $PLATFORM_URL = "https://platform.activestate.com/$NAMESPACE";
 
@@ -52,10 +53,18 @@ sub start_menu_path {
     return Win32::GetFolderPath(Win32::CSIDL_STARTMENU());
 }
 
+sub make_path {
+    my $base = shift;
+
+    unless (-d $base) {
+        my $success = mkpath($base);
+	die "Couldn't create path '$base': $!" unless $success == 1;
+    }
+}
+
 sub create_internet_shortcut {
-    my $target   = shift;
-    my $icon     = shift;
-    my $linkPath = shift;
+    my $target  = shift;
+    my $lnkPath = shift;
 
     if ( -e $lnkPath ) {
         unlink $lnkPath;
@@ -66,15 +75,16 @@ sub create_internet_shortcut {
     $link->save($lnkPath, $target);
     $link->load($lnkPath);
 
-    ($link->{target} eq $target) || die "Not the same url\n";
+    ($link->{url} eq $target) || die "Not the same url\n";
 
     return;
 }
 
 sub create_shortcut {
     my $target   = shift;
+    my $args     = shift;
     my $icon     = shift;
-    my $linkPath = shift;
+    my $lnkPath  = shift;
     my $location = shift;
 
     if ( -e $lnkPath ) {
@@ -83,7 +93,8 @@ sub create_shortcut {
 
     #print "Creating application shortcut: $lnkPath -> $target\n";
     my $LINK = Win32::Shortcut->new();
-    $LINK->{'Path'} = $target;
+    $LINK->{'Path'}             = $target;
+    $LINK->{'Arguments'}        = $args;
     $LINK->{'IconLocation'}     = $icon;
     $LINK->{'IconNumber'}       = 0;
     $LINK->{'WorkingDirectory'} = $location;
@@ -95,38 +106,34 @@ sub create_shortcut {
 
 sub create_internet_shortcuts {
     my $target  = $PLATFORM_URL;
-    my $icon    = q();
     my $lnkName = "$NAMESPACE Web.url";
+    $lnkName =~ s#/# #;
 
     my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
-
-    unless (-d $start_menu_base) {
-        my $success = mkpath($start_menu_base);
-        die "Couldn't create start menu shortcut path '$start_menu_base': $!" unless $success == 1;
-    }
-
+    make_path($start_menu_base);
     my $startLnkPath = catfile($start_menu_base, $lnkName);
-    create_internet_shortcut($target, $icon, $startLnkPath);
+    create_internet_shortcut($target, $startLnkPath);
 
     my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
-    create_internet_shortcut($target, $icon, $dsktpLnkPath);
+    create_internet_shortcut($target, $dsktpLnkPath);
 
     return;
 }
 
 sub create_shortcuts {
-    my $target  = "cmd /c state activate";
+    my $target  = "%windir%\\system32\\cmd.exe";
+    my $args     = "/k state activate";
     my $icon    = q();
     my $lnkName = "$NAMESPACE CLI.lnk";
+    $lnkName =~ s#/# #;
 
     my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
-    mkpath($start_menu_base);
-
+    make_path($start_menu_base);
     my $startLnkPath = catfile($start_menu_base, $lnkName);
-    create_shortcut($target, $icon, $startLnkPath, cwd);
+    create_shortcut($target, $args, $icon, $startLnkPath, cwd);
 
     my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
-    create_shortcut($target, $icon, $dsktpLnkPath, cwd);
+    create_shortcut($target, $args, $icon, $dsktpLnkPath, cwd);
 
     return;
 }
