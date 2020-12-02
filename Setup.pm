@@ -29,6 +29,7 @@ my $PROJECT      = 'Perl-5.32';
 my $NAMESPACE    = "$ORGANIZATION/$PROJECT";
 my $PLATFORM_URL = "https://platform.activestate.com/$NAMESPACE";
 my $STATE_ICO    = "state.ico";
+my $WEB_ICO      = "web.ico";
 
 # Import Win32 function: `void SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2)`
 
@@ -110,7 +111,7 @@ sub create_internet_shortcuts {
     my $target  = $PLATFORM_URL;
     my $lnkName = "$NAMESPACE Web.url";
     $lnkName =~ s#/# #;
-    my $icon = catfile(cwd, $STATE_ICO);
+    my $icon = catfile(cwd, $WEB_ICO);
 
     my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
     make_path($start_menu_base);
