@@ -19,10 +19,6 @@ use Win32;
 use Win32::API;
 use Win32::Shortcut;
 use Win32::TieRegistry;
-use Win32::Unicode::InternetShortcut;
-
-BEGIN { Win32::Unicode::InternetShortcut->CoInitialize(); }
-END { Win32::Unicode::InternetShortcut->CoUninitialize(); }
 
 our $VERSION           = '0.02';
 my $SHCNE_ASSOCCHANGED = 0x8_000_000;
@@ -32,6 +28,8 @@ my $ORGANIZATION = 'ActiveState';
 my $PROJECT      = 'Perl-5.32';
 my $NAMESPACE    = "$ORGANIZATION/$PROJECT";
 my $PLATFORM_URL = "https://platform.activestate.com/$NAMESPACE";
+my $STATE_ICO    = "state.ico";
+my $WEB_ICO      = "web.ico";
 
 # Import Win32 function: `void SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2)`
 
@@ -65,17 +63,22 @@ sub make_path {
 sub create_internet_shortcut {
     my $target  = shift;
     my $lnkPath = shift;
+    my $iconPath = shift;
 
     if ( -e $lnkPath ) {
         unlink $lnkPath;
     }
 
-    #print "Creating internet shortcut: $lnkPath -> $target\n";
-    my $link = Win32::Unicode::InternetShortcut->new;
-    $link->save($lnkPath, $target);
-    $link->load($lnkPath);
+    my $str = <<END;
+[InternetShortcut]
+URL=${target}
+IconFile=${iconPath}
+IconIndex=0
+END
 
-    ($link->{url} eq $target) || die "Not the same url\n";
+    open(FH, '>', $lnkPath) or die "Couldn't create internet shortcut '$target': $!";
+    print FH $str;
+    close(FH);
 
     return;
 }
@@ -108,14 +111,15 @@ sub create_internet_shortcuts {
     my $target  = $PLATFORM_URL;
     my $lnkName = "$NAMESPACE Web.url";
     $lnkName =~ s#/# #;
+    my $icon = catfile(cwd, $WEB_ICO);
 
     my $start_menu_base = catfile(start_menu_path(), $ORGANIZATION);
     make_path($start_menu_base);
     my $startLnkPath = catfile($start_menu_base, $lnkName);
-    create_internet_shortcut($target, $startLnkPath);
+    create_internet_shortcut($target, $startLnkPath, $icon);
 
     my $dsktpLnkPath = catfile(desktop_dir_path(), $lnkName);
-    create_internet_shortcut($target, $dsktpLnkPath);
+    create_internet_shortcut($target, $dsktpLnkPath, $icon);
 
     return;
 }
@@ -123,7 +127,7 @@ sub create_internet_shortcuts {
 sub create_shortcuts {
     my $target  = "%windir%\\system32\\cmd.exe";
     my $args     = "/k state activate";
-    my $icon    = q();
+    my $icon = catfile(cwd, $STATE_ICO);
     my $lnkName = "$NAMESPACE CLI.lnk";
     $lnkName =~ s#/# #;
 
