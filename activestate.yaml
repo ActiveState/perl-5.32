@@ -1,4 +1,4 @@
-project: https://platform.activestate.com/commit/d6034680-b1ed-46a5-89e4-ac5df256fd98
+project: https://platform.activestate.com/ActiveState/Perl-5.32?commitID=d6034680-b1ed-46a5-89e4-ac5df256fd98
 
 scripts:
   - name: learn
