@@ -1,4 +1,4 @@
-project: https://platform.activestate.com/commit/475e26d4-4dc6-4d05-bfb2-c6720e6fef79
+project: https://platform.activestate.com/commit/d6034680-b1ed-46a5-89e4-ac5df256fd98
 
 scripts:
   - name: learn
@@ -12,8 +12,9 @@ scripts:
     if: eq .OS.Name "Windows"
     value: |
       use lib q(.);
-      use Setup qw(create_shortcut create_file_assoc);
-      create_shortcut();
+      use Setup qw(create_internet_shortcuts create_shortcuts create_file_assoc);
+      create_internet_shortcuts();
+      create_shortcuts();
       create_file_assoc();
       print "Successfully created Desktop Shortcuts and File Associations.\n\n"
   - name: introduction
@@ -57,10 +58,12 @@ scripts:
       $proj =~ m/\/commit\/(.+)$/;
       my $commit = $1;
       my $preview_url = "https://platform.activestate.com/project-preview/${commit}";
-      if ($commit ne "") { $anon=1; }
-      my $msg = "Visit ${A}${project}${R} to see in-progress build status.";
+      my $msg = "";
       my $note = "";
-      if ($anon==1) {$note = "${H}Note:${R} If you sign-up for a platform account you can monitor build progress and receive an email when it completes, as well as other advanced project management functionality."; $msg = "Visit ${A}${preview_url}${R} to sign-up for account to see in-progress build-status.";}
+      my $user = "${mixin.user.name}";
+      if ($user eq "") {$note = "${H}Note:${R} If you sign-up for a platform account you can monitor build progress and receive an email when it completes, as well as other advanced project management functionality."; $msg = "Visit ${A}${preview_url}${R} to sign-up for account to see in-progress build-status.";}
+      
+      if ($note ne "" and $msg ne "") {
       print <<EOT;
       
       ${note}
@@ -68,6 +71,7 @@ scripts:
       ${msg}
 
       EOT
+      }
   - name: pkg-after
     description: Message after packages install to inform users about build status on the webpage
     language: perl
@@ -81,14 +85,15 @@ scripts:
       $proj =~ m/\/commit\/(.+)$/;
       my $commit = $1;
       my $preview_url = "https://platform.activestate.com/project-preview/${commit}";
-      if ($commit ne "") { $anon=1; }
       my $msg = "";
-      if ($anon==1) {$msg = "${H}Note:${R} You're currently using this tool anonymously.\nSign-up for an account on the Activestate Platform to create your own version of this project.\nHaving an account gives you: full customization, team sharing, versioned backup, and more!\n\nVisit: ${A}${preview_url}${R} or run ${A}state run convert${R}."}
+      my $user = "${mixin.user.name}";
+      if ($user eq "") {$msg = "${H}Note:${R} You're currently using this tool anonymously.\nSign-up for an account on the Activestate Platform to create your own version of this project.\nHaving an account gives you: full customization, team sharing, versioned backup, and more!\n\nVisit: ${A}${preview_url}${R} or run ${A}state run convert${R}."}
+      if ($msg ne "") {
       print <<EOT;
       
       ${msg}
       EOT
-
+      }
 
 events:
   - name: first-activate
