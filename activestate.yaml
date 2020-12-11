@@ -38,14 +38,10 @@ scripts:
     language: perl
     value: |
       use Browser::Open qw( open_browser );
-      $proj = "${project}";
-      $proj =~ m/\/commit\/(.+)$/;
-      my $commit = $1;
-      my $preview_url = "https://platform.activestate.com/project-preview/${commit}";
       print <<EOT;
-      If your browser doesn't open automatically, you can visit: ${preview_url}
+      If your browser doesn't open automatically, you can visit: ${project}
       EOT
-      open_browser($preview_url);
+      open_browser("${project}");
   - name: pkg-before
     description: Message before packages install to inform users about build status on the webpage
     language: perl
@@ -54,24 +50,10 @@ scripts:
       my $H = "\e[1;39;1m"; # Highlight
       my $A = "\e[1;36m"; # Actionable
       my $R = "\e[0m"; # Reset
-      my $proj = "${project}";
-      $proj =~ m/\/commit\/(.+)$/;
-      my $commit = $1;
-      my $preview_url = "https://platform.activestate.com/project-preview/${commit}";
       my $msg = "";
-      my $note = "";
       my $user = "${mixin.user.name}";
-      if ($user eq "") {$note = "${H}Note:${R} If you sign-up for a platform account you can monitor build progress and receive an email when it completes, as well as other advanced project management functionality."; $msg = "Visit ${A}${preview_url}${R} to sign-up for account to see in-progress build-status.";}
-      
-      if ($note ne "" and $msg ne "") {
-      print <<EOT;
-      
-      ${note}
-      
-      ${msg}
-
-      EOT
-      }
+      if ($user eq "") {$msg = "${H}Note:${R} If you sign-up for a platform account you can monitor build progress and receive an email when it completes, as well as other advanced project management functionality.\nVisit ${A}${project}${R} to sign-up for account to see in-progress build-status.\n";}
+      if ($msg ne "") { print ${msg}; }
   - name: pkg-after
     description: Message after packages install to inform users about build status on the webpage
     language: perl
@@ -80,20 +62,10 @@ scripts:
       my $H = "\e[1;39;1m"; # Highlight
       my $A = "\e[1;36m"; # Actionable
       my $R = "\e[0m"; # Reset
-      my $anon=0;
-      my $proj = "${project}";
-      $proj =~ m/\/commit\/(.+)$/;
-      my $commit = $1;
-      my $preview_url = "https://platform.activestate.com/project-preview/${commit}";
       my $msg = "";
       my $user = "${mixin.user.name}";
-      if ($user eq "") {$msg = "${H}Note:${R} You're currently using this tool anonymously.\nSign-up for an account on the Activestate Platform to create your own version of this project.\nHaving an account gives you: full customization, team sharing, versioned backup, and more!\n\nVisit: ${A}${preview_url}${R} or run ${A}state run convert${R}."}
-      if ($msg ne "") {
-      print <<EOT;
-      
-      ${msg}
-      EOT
-      }
+      if ($user eq "") {$msg = "${H}Note:${R} You're currently using this tool anonymously.\nSign-up for an account on the Activestate Platform to create your own version of this project.\nHaving an account gives you: full customization, team sharing, versioned backup, and more!\n\nVisit: ${A}${project}${R} or run ${A}state run convert${R}.\n"}
+      if ($msg ne "") { print ${msg}; }
 
 events:
   - name: first-activate
