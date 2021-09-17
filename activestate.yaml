@@ -1,4 +1,4 @@
-project: https://platform.activestate.com/ActiveState/Perl-5.32?commitID=d6034680-b1ed-46a5-89e4-ac5df256fd98
+project: https://platform.activestate.com/ActiveState/Perl-5.32?branch=main&commitID=d6034680-b1ed-46a5-89e4-ac5df256fd98
 
 scripts:
   - name: learn
@@ -42,40 +42,9 @@ scripts:
       If your browser doesn't open automatically, you can visit: ${project}
       EOT
       open_browser("${project}");
-  - name: pkg-before
-    description: Message before packages install to inform users about build status on the webpage
-    language: perl
-    value: |
-      use if $^O eq "MSWin32", Win32::Console::ANSI;
-      my $H = "\e[1;39;1m"; # Highlight
-      my $A = "\e[1;36m"; # Actionable
-      my $R = "\e[0m"; # Reset
-      my $msg = "";
-      my $user = "${mixin.user.name}";
-      if ($user eq "") {$msg = "${H}Note:${R} If you sign-up for a platform account you can monitor build progress and receive an email when it completes, as well as other advanced project management functionality.\nVisit ${A}${project}${R} to sign-up for account to see in-progress build-status.\n";}
-      if ($msg ne "") { print ${msg}; }
-  - name: pkg-after
-    description: Message after packages install to inform users about build status on the webpage
-    language: perl
-    value: |
-      use if $^O eq "MSWin32", Win32::Console::ANSI;
-      my $H = "\e[1;39;1m"; # Highlight
-      my $A = "\e[1;36m"; # Actionable
-      my $R = "\e[0m"; # Reset
-      my $msg = "";
-      my $user = "${mixin.user.name}";
-      if ($user eq "") {$msg = "${H}Note:${R} You're currently using this tool anonymously.\nSign-up for an account on the Activestate Platform to create your own version of this project.\nHaving an account gives you: full customization, team sharing, versioned backup, and more!\n\nVisit: ${A}${project}${R} or run ${A}state run convert${R}.\n"}
-      if ($msg ne "") { print ${msg}; }
-
 events:
   - name: first-activate
     if: eq .OS.Name "Windows"
     value: perl $scripts.setup.path()
   - name: activate
     value: perl $scripts.introduction.path()
-  - name: before-command
-    scope: [ "install"]
-    value: pkg-before
-  - name: after-command
-    scope: [ "install" ]
-    value: pkg-after
