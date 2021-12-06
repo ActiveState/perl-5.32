@@ -7,11 +7,14 @@ use warnings;
 
 use Exporter 'import';
 our @EXPORT_OK = qw(create_internet_shortcuts create_shortcuts create_file_assoc);
+our $VERSION = '1.00';
 
 use lib q(.);
 use File::Path qw( mkpath );
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
+use File::ShareDir qw( dist_file );
+
 use Config;
 use Cwd qw(cwd);
 
@@ -28,8 +31,8 @@ my $ORGANIZATION = 'ActiveState';
 my $PROJECT      = 'Perl-5.32';
 my $NAMESPACE    = "$ORGANIZATION/$PROJECT";
 my $PLATFORM_URL = "https://platform.activestate.com/$NAMESPACE";
-my $STATE_ICO    = "state.ico";
-my $WEB_ICO      = "web.ico";
+my $STATE_ICO    = dist_file('ActiveState-Setup', 'state.ico' );
+my $WEB_ICO      = dist_file('ActiveState-Setup', 'web.ico' );
 
 # Import Win32 function: `void SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2)`
 
