@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package  Setup;
+package ActiveState::Setup;
 
 use strict;
 use warnings;
@@ -56,7 +56,7 @@ sub make_path {
 
     unless (-d $base) {
         my $success = mkpath($base);
-	die "Couldn't create path '$base': $!" unless $success == 1;
+        die "Couldn't create path '$base': $!" unless $success == 1;
     }
 }
 
