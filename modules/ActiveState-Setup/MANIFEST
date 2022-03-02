@@ -3,3 +3,4 @@ Makefile.PL
 setup_files/state.ico
 setup_files/web.ico
 lib/ActiveState/Setup.pm
+LICENSE

@@ -12,6 +12,7 @@ WriteMakefile(
         'ExtUtils::MakeMaker'     => 0,
         'File::ShareDir::Install' => 0,
     },
+    LICENSE => 'mit',
     PREREQ_PM => {
         'File::Path'         => 0,
         'File::Basename'     => 0,
