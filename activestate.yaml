@@ -12,7 +12,7 @@ scripts:
     if: eq .OS.Name "Windows"
     value: |
       use lib q(.);
-      use ActiveState::Setup qw(create_internet_shortcuts create_shortcuts create_file_assoc);
+      use ActiveState::Setup organization => 'ActiveState', project => 'Perl-5.32';
       create_internet_shortcuts();
       create_shortcuts();
       create_file_assoc();
