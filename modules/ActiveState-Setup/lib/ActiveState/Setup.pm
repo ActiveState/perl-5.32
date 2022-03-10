@@ -23,7 +23,6 @@ use Win32::API;
 use Win32::Shortcut;
 use Win32::TieRegistry;
 
-our $VERSION           = '0.02';
 my $SHCNE_ASSOCCHANGED = 0x8_000_000;
 my $SCNF_FLUSH         = 0x1000;
 
